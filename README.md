@@ -13,3 +13,6 @@ Navigate to the backend directory.
 Install backend dependencies.
 Create a MongoDB database and update the .env file with your MongoDB connection string.
 Run the backend server.</p>
+
+![image](https://github.com/user-attachments/assets/5d80cc8d-510e-41a6-ab94-5753ad90e3ae)
+
