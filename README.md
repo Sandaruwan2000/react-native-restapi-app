@@ -3,8 +3,8 @@
 <p>3.run react native project npm start</p>
 <p>4.cd backend</p>
 <p>5.instrall backend dependencies - npm i</p>
-<p>run backend - npm run dev</p>
-<p>create mongodb databse and add link to .env file incide backend</p>
+<p>6.run backend - npm run dev</p>
+<p>7.create mongodb databse and add link to .env file incide backend</p>
 
 <p>
 Clone the project repository.
