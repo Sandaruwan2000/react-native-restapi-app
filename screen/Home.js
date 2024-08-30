@@ -1,173 +1,155 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
-import { Button } from "react-native-paper";
-import { getDatabase, ref, onValue, off } from "firebase/database";
-import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
-import app from "../Firebase";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { Button } from 'react-native-paper';
 
 const Home = ({ navigation }) => {
-  const [users, setUsers] = useState([]);
-  const [logemail, setLogemail] = useState("");
+  const Image1 = require('./../assets/i1.jpg'); 
+  const Image2 = require('./../assets/i3.jpg');
+  const Image3 = require('./../assets/i6.avif');
+  const Image4 = require('./../assets/12.jpg');
+  const Image5 = require('./../assets/i4.jpg');
+  const Image6 = require('./../assets/i8.jpg');
 
-  const handleViewProfile = () => {
-    navigation.navigate("ViewProfile");
+  const handleProductList = () => {
+    navigation.navigate("ProductList");
   };
-
-  const handleOnSpin = () => {
-    navigation.navigate("Spinner");
-  };
-
-  const handleSpinData = () => {
-    navigation.navigate("SpinData");
-  };
-
-  const getStoredEmail = async () => {
-    try {
-      const logemail = await AsyncStorage.getItem("logemail");
-      setLogemail(logemail);
-    } catch (error) {
-      console.error("Error retrieving email:", error);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    getStoredEmail();
-  }, []);
-
-  const downloadUsersReport = async () => {
-    const htmlContent = generateHTMLReport(users);
-    try {
-      const pdf = await Print.printToFileAsync({ html: htmlContent });
-      if (pdf.uri) {
-        Sharing.shareAsync(pdf.uri);
-      }
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
-  };
-
-  const generateHTMLReport = (users) => {
-    let html = `
-            <html>
-                <head>
-                    <style>
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-                        th, td {
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                        }
-                        th {
-                            background-color: #f2f2f2;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Address</th>
-                                <th>Phone Number</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
-
-    users.forEach((user) => {
-      html += `
-                <tr>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${user.address}</td>
-                    <td>${user.phoneNumber}</td>
-                </tr>
-            `;
-    });
-
-    html += `
-                        </tbody>
-                    </table>
-                </body>
-            </html>
-        `;
-
-    return html;
-  };
-
-  useEffect(() => {
-    const db = getDatabase(app);
-    const usersRef = ref(db, "myApp/users");
-
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const usersArray = Object.values(data);
-        setUsers(usersArray);
-      } else {
-        setUsers([]);
-      }
-    });
-
-    return () => {
-      off(usersRef);
-    };
-  }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Welcome to Our Store</Text>
+      </View>
+
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search for products..."
+      />
+
       <Button
         mode="contained"
-        onPress={handleViewProfile}
+        onPress={handleProductList}
         style={styles.button}
       >
-        View Profile
+        Product List
       </Button>
-      {logemail == "admin@gmail.com" && (
-        <Button
-          mode="contained"
-          onPress={downloadUsersReport}
-          style={styles.button}
-        >
-          Report
-        </Button>
-      )}
-      {logemail == "admin@gmail.com" && (
-        <Button mode="contained" onPress={handleSpinData} style={styles.button}>
-          Spin Data
-        </Button>
-      )}
-      {logemail != "admin@gmail.com" && (
-        <Button mode="contained" onPress={handleOnSpin} style={styles.button}>
-          Spinner
-        </Button>
-      )}
-    </View>
+
+      <View style={styles.table}>
+        <View style={styles.row}>
+          <View style={styles.cell}>
+            <View style={styles.imageContainer}>
+              <Image source={Image6} style={styles.image} />
+              <Text style={styles.imageText}>Puma Shoes</Text>
+            </View>
+          </View>
+          <View style={styles.cell}>
+            <View style={styles.imageContainer}>
+              <Image source={Image1} style={styles.image} />
+              <Text style={styles.imageText}>Nike Shoes</Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.row}>
+          <View style={styles.cell}>
+            <View style={styles.imageContainer}>
+              <Image source={Image2} style={styles.image} />
+              <Text style={styles.imageText}>Puma Shoes</Text>
+            </View>
+          </View>
+          <View style={styles.cell}>
+            <View style={styles.imageContainer}>
+              <Image source={Image3} style={styles.image} />
+              <Text style={styles.imageText}>Nike Shoes</Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.row}>
+          <View style={styles.cell}>
+            <View style={styles.imageContainer}>
+              <Image source={Image4} style={styles.image} />
+              <Text style={styles.imageText}>Puma Shoes</Text>
+            </View>
+          </View>
+          <View style={styles.cell}>
+            <View style={styles.imageContainer}>
+              <Image source={Image5} style={styles.image} />
+              <Text style={styles.imageText}>Cinema 6</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  header: {
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  searchBar: {
+    width: '100%',
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
   },
   button: {
-    width: "80%",
+    width: '50%',
     height: 50,
-    marginBottom: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: "#2A3F84",
+    backgroundColor: '#2A3F84',
+    alignSelf: 'flex-start', 
+    marginBottom: 20, 
+    borderWidth: 2,
+    borderColor: 'gary',
+  },
+  table: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  row: {
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: 10,
+    justifyContent: 'space-between',
+  },
+  cell: {
+    width: '48%',
+    marginBottom: 10,
+    padding: 5,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#f4f4f4',
+    padding: 10,
+  },
+  image: {
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
+  },
+  imageText: {
+    textAlign: 'center',
+    marginTop: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

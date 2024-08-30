@@ -1,19 +1,40 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, Button, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, Button, Alert, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 
 export default function ProductDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { product } = route.params;
   const [cart, setCart] = useState([]);
+  const [isInCart, setIsInCart] = useState(false);
+
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/backend/cart/getAllcarts');
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart data');
+        }
+        const data = await response.json();
+        setCart(data);
+
+        
+        const isAlreadyInCart = data.some(cartItem => cartItem.productId === product.id);
+        setIsInCart(isAlreadyInCart);
+      } catch (error) {
+        Alert.alert('Error', error.message);
+      }
+    };
+
+    fetchCartData();
+  }, [product.id]);
 
   const addToCart = async () => {
     try {
-      // Check if the product is already in the cart
-      const isAlreadyInCart = cart.some(cartItem => cartItem.productId === product.id);
-
-      if (isAlreadyInCart) {
+      
+      if (isInCart) {
         Alert.alert('Product is already in the cart.');
         return;
       }
@@ -24,6 +45,7 @@ export default function ProductDetailScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          productId: product.id,
           productName: product.name,
           productImage: product.mainImage,
           productPrice: product.price.amount,
@@ -42,6 +64,7 @@ export default function ProductDetailScreen() {
       setCart((prevCart) => {
         const updatedCart = [...prevCart, result];
         Alert.alert('Added to cart', '', [{ text: 'Go to Cart', onPress: () => navigateToCart(updatedCart) }]);
+        setIsInCart(true);
         return updatedCart;
       });
     } catch (error) {
@@ -53,8 +76,17 @@ export default function ProductDetailScreen() {
     navigation.navigate('Cart', { cart: updatedCart });
   };
 
+  const navigateToCartPage = () => {
+    navigation.navigate('Cart');
+  };
+
   return (
     <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={navigateToCartPage}>
+          <Icon name="shopping-cart" size={24} color="black" style={styles.cartIcon} />
+        </TouchableOpacity>
+      </View>
       <Image source={{ uri: product.mainImage }} style={styles.productImage} />
       <Text style={styles.productName}>{product.name}</Text>
       <Text style={styles.productBrand}>{product.brandName || 'Brand not available'}</Text>
@@ -66,7 +98,11 @@ export default function ProductDetailScreen() {
       <Text style={styles.productSizes}>
         Sizes Available: {product.sizes.join(', ')}
       </Text>
-      <Button title="Add to Cart" onPress={addToCart} />
+      {!isInCart && (
+        <TouchableOpacity style={styles.addButton} onPress={addToCart}>
+          <Text style={styles.addButtonText}>Add to Cart</Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 }
@@ -74,40 +110,68 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 15,
+    backgroundColor: '#f9f9f9',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingBottom: 10,
+  },
+  cartIcon: {
     padding: 10,
-    backgroundColor: '#fff',
   },
   productImage: {
     width: '100%',
     height: 300,
     resizeMode: 'contain',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 15,
   },
   productName: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
+    color: '#333',
     marginVertical: 10,
   },
   productBrand: {
     fontSize: 18,
-    color: 'gray',
+    color: '#666',
+    marginBottom: 5,
   },
   productPrice: {
-    fontSize: 20,
-    color: 'green',
+    fontSize: 22,
+    color: '#28a745',
     marginVertical: 10,
   },
   productDescription: {
     fontSize: 16,
-    color: '#333',
+    color: '#555',
     marginVertical: 10,
+    lineHeight: 22,
   },
   productStock: {
     fontSize: 16,
-    color: 'red',
+    color: '#dc3545',
     marginVertical: 10,
   },
   productSizes: {
     fontSize: 16,
+    color: '#333',
     marginVertical: 10,
+  },
+  addButton: {
+    backgroundColor: '#007bff',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

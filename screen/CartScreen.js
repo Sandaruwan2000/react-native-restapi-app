@@ -1,57 +1,143 @@
-// import React from 'react';
-// import { View, Text, StyleSheet, FlatList } from 'react-native';
-// import { useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Button, Alert, Image, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 
-// export default function CartScreen() {
-//   const route = useRoute();
-//   const { cart } = route.params || { cart: [] };
+export default function CartScreen({ navigation }) {
+  const [cart, setCart] = useState([]);
 
-//   const renderItem = ({ item }) => (
-//     <View style={styles.cartItem}>
-//       <Text style={styles.cartItemName}>{item.name}</Text>
-//       <Text style={styles.cartItemPrice}>
-//         {item.price.amount} {item.price.currency}
-//       </Text>
-//     </View>
-//   );
+  useEffect(() => {
+    fetchCartData();
+  }, []);
 
-//   return (
-//     <View style={styles.container}>
-//       <FlatList
-//         data={cart}
-//         renderItem={renderItem}
-//         keyExtractor={(item) => item.id.toString()}
-//       />
-//     </View>
-//   );
-// }
+  const fetchCartData = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/backend/cart/getAllcarts');
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart data');
+      }
+      const data = await response.json();
+      setCart(data);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     padding: 10,
-//     backgroundColor: '#fff',
-//   },
-//   cartItem: {
-//     padding: 10,
-//     borderBottomWidth: 1,
-//     borderBottomColor: '#ddd',
-//   },
-//   cartItemName: {
-//     fontSize: 18,
-//   },
-//   cartItemPrice: {
-//     fontSize: 16,
-//     color: 'green',
-//   },
-// });
-import { View, Text } from 'react-native'
-import React from 'react'
+  const removeItemFromCart = async (itemId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/backend/cart/deletecart/${itemId}`, {
+        method: 'DELETE',
+      });
 
-export default function CartScreen() {
+      if (!response.ok) {
+        throw new Error('Failed to remove item from cart');
+      }
+
+      setCart(cart.filter(item => item._id !== itemId));
+      Alert.alert('Item removed from cart');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const navigateToProductList = () => {
+    navigation.navigate('ProductList'); 
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('CartDetail', { product: item })}>
+      <View style={styles.cartItem}>
+        <Image source={{ uri: item.productImage }} style={styles.productImage} />
+        <View style={styles.textContainer}>
+          <Text style={styles.cartItemName}>{item.productName}</Text>
+          <Text style={styles.cartItemPrice}>{item.productPrice} USD</Text>
+          <TouchableOpacity 
+            style={styles.removeButton} 
+            onPress={() => removeItemFromCart(item._id)}
+          >
+            <Text style={styles.removeButtonText}>Remove</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
-    <View>
-      <Text>CartScreen</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={navigateToProductList} style={styles.iconContainer}>
+          <Icon name="list" size={24} color="#333" /> 
+        </TouchableOpacity>
+      </View>
+      <FlatList
+        data={cart}
+        renderItem={renderItem}
+        keyExtractor={(item) => item._id.toString()}
+        contentContainerStyle={styles.listContent}
+      />
     </View>
-  )
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#f9f9f9',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingBottom: 15,
+  },
+  iconContainer: {
+    padding: 10,
+  },
+  cartItem: {
+    flexDirection: 'row',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+    marginBottom: 10,
+  },
+  productImage: {
+    width: 80,
+    height: 80,
+    marginRight: 15,
+    borderRadius: 10,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  cartItemName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  cartItemPrice: {
+    fontSize: 16,
+    color: '#2a9d8f',
+    marginVertical: 5,
+  },
+  removeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor:  '#007bff',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+});
