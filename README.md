@@ -11,7 +11,7 @@
 2. **Install Project Dependencies:**
    - Navigate to the project directory and install the required dependencies:
      ```bash
-     npm install
+     npm install --force
      ```
 
 3. **Run the React Native Project:**
