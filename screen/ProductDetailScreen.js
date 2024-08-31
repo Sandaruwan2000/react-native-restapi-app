@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, Button, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function ProductDetailScreen() {
   const route = useRoute();
@@ -9,6 +9,7 @@ export default function ProductDetailScreen() {
   const { product } = route.params;
   const [cart, setCart] = useState([]);
   const [isInCart, setIsInCart] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     const fetchCartData = async () => {
@@ -20,7 +21,9 @@ export default function ProductDetailScreen() {
         const data = await response.json();
         setCart(data);
 
-        
+        // Set cart count
+        setCartCount(data.length);
+
         const isAlreadyInCart = data.some(cartItem => cartItem.productId === product.id);
         setIsInCart(isAlreadyInCart);
       } catch (error) {
@@ -33,7 +36,6 @@ export default function ProductDetailScreen() {
 
   const addToCart = async () => {
     try {
-      
       if (isInCart) {
         Alert.alert('Product is already in the cart.');
         return;
@@ -65,6 +67,7 @@ export default function ProductDetailScreen() {
         const updatedCart = [...prevCart, result];
         Alert.alert('Added to cart', '', [{ text: 'Go to Cart', onPress: () => navigateToCart(updatedCart) }]);
         setIsInCart(true);
+        setCartCount(updatedCart.length); // Update cart count
         return updatedCart;
       });
     } catch (error) {
@@ -83,8 +86,13 @@ export default function ProductDetailScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={navigateToCartPage}>
+        <TouchableOpacity onPress={navigateToCartPage} style={styles.cartIconContainer}>
           <Icon name="shopping-cart" size={24} color="black" style={styles.cartIcon} />
+          {cartCount > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{cartCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
       <Image source={{ uri: product.mainImage }} style={styles.productImage} />
@@ -118,8 +126,28 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: 10,
   },
+  cartIconContainer: {
+    position: 'relative',
+    padding: 10,
+  },
   cartIcon: {
     padding: 10,
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: '#ff0000',
+    borderRadius: 8,
+    padding: 3,
+    minWidth: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   productImage: {
     width: '100%',

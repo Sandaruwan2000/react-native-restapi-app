@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Button, Alert, Image, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import { View, Text, StyleSheet, FlatList, Alert, Image, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function CartScreen({ navigation }) {
   const [cart, setCart] = useState([]);
@@ -65,8 +65,18 @@ export default function CartScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={navigateToProductList} style={styles.iconContainer}>
-          <Icon name="list" size={24} color="#333" /> 
+          <Icon name="list" size={24} color="#333" />
         </TouchableOpacity>
+        <View style={styles.cartIconContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('CartScreen')}>
+            <Icon name="shopping-cart" size={30} color="#333" />
+            {cart.length > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{cart.length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
       <FlatList
         data={cart}
@@ -86,11 +96,32 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingBottom: 15,
   },
   iconContainer: {
     padding: 10,
+  },
+  cartIconContainer: {
+    position: 'relative',
+    padding: 10,
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: '#ff0000',
+    borderRadius: 8,
+    padding: 3,
+    minWidth: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   cartItem: {
     flexDirection: 'row',
@@ -129,7 +160,7 @@ const styles = StyleSheet.create({
   removeButton: {
     marginTop: 10,
     padding: 10,
-    backgroundColor:  '#007bff',
+    backgroundColor: '#007bff',
     borderRadius: 5,
     alignItems: 'center',
   },
