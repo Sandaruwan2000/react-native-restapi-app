@@ -40,6 +40,9 @@
 
 7. **Create a MongoDB Database:**
    - Create a MongoDB database and add the connection string to the `.env` file inside the backend directory.
+    ```env
+     MONGO=<Your MongoDB Connection String>
+     ```
 
 ## Project Overview
 
