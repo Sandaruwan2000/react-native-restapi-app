@@ -5,7 +5,7 @@
 1. **Clone the Project:**
    - Use the following command to clone the repository:
      ```bash
-     git clone https://github.com/Sandaruwan2000/react-native-restapi-app.git
+     git clone https://github.com/Sandaruwan2000/react-native-wastewatch.git
      ```
 
 2. **Install Project Dependencies:**
