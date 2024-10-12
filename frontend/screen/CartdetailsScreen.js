@@ -14,7 +14,7 @@ export default function CartDetailScreen() {
   useEffect(() => {
     const fetchCartData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/backend/cart/getAllcarts');
+        const response = await fetch('http://192.168.8.130:3000/backend/cart/getAllcarts');
         if (!response.ok) {
           throw new Error('Failed to fetch cart data');
         }
